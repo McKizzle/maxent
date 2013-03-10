@@ -34,8 +34,9 @@ class FeatureFactory:
         added enough features, take out the features that you don't need.
 	"""
 
-
-	""" TODO: Add your features here """
+        # label something a person if it's uppercase
+        if currentWord[0].isupper():
+            features.append('case=Title')
 
         return features
 
