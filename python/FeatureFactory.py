@@ -16,7 +16,7 @@ class FeatureFactory:
     Words is a list of the words in the entire corpus, previousLabel is the label
     for position-1 (or O if it's the start of a new sentence), and position
     is the word you are adding features for. PreviousLabel must be the
-    only label that is visible to this method. 
+    only label that is visible to this method.
     """
 
     def computeFeatures(self, words, previousLabel, position):
@@ -31,7 +31,7 @@ class FeatureFactory:
         Warning: If you encounter "line search failure" error when
         running the program, considering putting the baseline features
 	back. It occurs when the features are too sparse. Once you have
-        added enough features, take out the features that you don't need. 
+        added enough features, take out the features that you don't need.
 	"""
 
 
@@ -41,8 +41,8 @@ class FeatureFactory:
 
     """ Do not modify this method """
     def readData(self, filename):
-        data = [] 
-        
+        data = []
+
         for line in open(filename, 'r'):
             line_split = line.split()
             # remove emtpy lines
@@ -58,8 +58,8 @@ class FeatureFactory:
 
     """ Do not modify this method """
     def readTestData(self, ch_aux):
-        data = [] 
-        
+        data = []
+
         for line in ch_aux.splitlines():
             line_split = line.split()
             # remove emtpy lines
@@ -112,7 +112,7 @@ class FeatureFactory:
             if not labelIndex.has_key(datum.label):
                 labelIndex[datum.label] = len(labels)
                 labels.append(datum.label)
-        
+
         ## This is so that the feature factory code doesn't
         ## accidentally use the true label info
         for i in range(0, len(data)):
@@ -156,8 +156,7 @@ class FeatureFactory:
                 feature = features[j]
                 featureObj['_'+feature] = feature
             jsonObj['_features'] = featureObj
-            
-            outFile.write(json.dumps(jsonObj) + '\n')
-            
-        outFile.close()
 
+            outFile.write(json.dumps(jsonObj) + '\n')
+
+        outFile.close()
