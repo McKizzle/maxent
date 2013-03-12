@@ -1,6 +1,7 @@
 import json, sys
 import base64
 from Datum import Datum
+import os
 
 class FeatureFactory:
     """
@@ -11,7 +12,8 @@ class FeatureFactory:
     def __init__(self):
         self.weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
         self.blacklist = ['A', 'The', 'North', 'South', 'West', 'East', 'Who', 'What', 'When', 'Where', 'Why', 'They']
-        f = open('../data/babynames.txt', 'r')
+        fn = os.path.join(os.path.dirname(__file__), '../data/babynames.txt')
+        f = open(fn, 'r')
         self.names = set(map(lambda s: s.strip(), f.readlines()))
         f.close()
 
