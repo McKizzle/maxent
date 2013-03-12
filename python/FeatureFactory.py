@@ -1,6 +1,7 @@
 import json, sys
 import base64
 from Datum import Datum
+import math, collections
 
 class FeatureFactory:
     """
@@ -9,6 +10,15 @@ class FeatureFactory:
     features, you may not need to intialize anything.
     """
     def __init__(self):
+        #Load the list of countries from the text file
+        self.imported   = [c.strip() for c in open("CountriesList").readlines()]
+        self.countries  = collections.defaultdict(lambda: 0)
+        for c in self.imported:
+          self.countries[c] = 1
+        #Create a list for directions
+        self.directions = ["North", "South", "East", "West"]
+        self.daysofweek = ["Monday", "Tuesday", "Wednesday", "Thursday","Friday", "Saturday", "Sunday", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat", "Sun"]
+        self.titles = ["Mr", "Mrs", "Ms"]
         pass
 
 
@@ -36,7 +46,34 @@ class FeatureFactory:
 
 
 	""" TODO: Add your features here """
+        #A user's name is usually capitalized.
+        if self.countries[currentWord] == 1:
+          return features
 
+        if currentWord in self.directions:
+          return features
+
+        if currentWord in self.daysofweek:
+          return features
+        
+        if currentWord in self.titles:
+          return features
+
+        if (len(currentWord) == 3) and (currentWord[2] == '.'):
+          return features
+
+        if (len(currentWord) == 4) and (currentWord[3] == '.'):
+          return features
+       
+        if len(currentWord) <= 2:
+          return features
+
+        #If there exists a ' after the first char then it is mostlikely a name
+        if (len(currentWord) >= 4) and (currentWord[1] == '\''):
+          features.append("punc=SingleQuote")
+        if currentWord[0].isupper() and (previousLabel == "PERSON"):
+          features.append("case=Title")
+         
         return features
 
     """ Do not modify this method """
