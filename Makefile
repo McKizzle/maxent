@@ -10,3 +10,7 @@ data/babynames.txt: data/babynames.csv
 
 .PHONY: setup
 setup: compile_java data/babynames.txt
+
+.PHONY: run
+run:
+	cd python && python NER.py ../data/train ../data/dev
