@@ -9,7 +9,11 @@ class FeatureFactory:
     features, you may not need to intialize anything.
     """
     def __init__(self):
-        pass
+        self.weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        self.blacklist = ['A', 'The', 'North', 'South', 'West', 'East', 'Who', 'What', 'When', 'Where', 'Why', 'They']
+        f = open('../data/babynames.txt', 'r')
+        self.names = set(map(lambda s: s.strip(), f.readlines()))
+        f.close()
 
 
     """
@@ -22,6 +26,9 @@ class FeatureFactory:
     def computeFeatures(self, words, previousLabel, position):
         features = []
         currentWord = words[position]
+        nextWord = None
+        if position+1 < len(words):
+            nextWord = words[position+1]
 
         """ Baseline Features """
         features.append("word=" + currentWord)
@@ -34,9 +41,32 @@ class FeatureFactory:
         added enough features, take out the features that you don't need.
 	"""
 
-        # label something a person if it's uppercase
-        if currentWord[0].isupper():
-            features.append('case=Title')
+        # bail if the word isn't capitalized
+        if not currentWord[0].isupper():
+            return features
+
+        #### TODO: Convert this to a list of lambdas
+
+        # abbreviations
+        if currentWord.count('.') > 0 or len(currentWord) < 4:
+            return features
+
+        if currentWord in self.weekdays:
+            return features
+
+        if currentWord in self.blacklist:
+            return features
+
+        if currentWord[-1].isupper():
+            return features
+
+        if currentWord.split('-').pop().islower():
+            return features
+
+        if currentWord in self.names:
+            features.append('firstname=yes')
+
+        features.append('case=Title')
 
         return features
 
