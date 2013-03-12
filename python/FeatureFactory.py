@@ -10,35 +10,20 @@ class FeatureFactory:
     features, you may not need to intialize anything.
     """
     def __init__(self):
-        self.initialize_weekdays()
-        self.initialize_babynames()
-        self.initialize_bailing()
-
-    def initialize_weekdays(self):
-        """Sets the weekday blacklist."""
+        self.honorifics_abbr = self.load_list('honorifics-abbr.txt')
+        self.honorifics = self.load_list('honorifics.txt')
+        self.names = self.load_list('babynames.txt')
         self.weekdays = set(['Sunday', 'Monday', 'Tuesday', 'Wednesday',
                              'Thursday', 'Friday', 'Saturday'])
 
-    def initialize_babynames(self):
-        """Reads the giant list of babynames into a set"""
-        fn = os.path.join(os.path.dirname(__file__), '../data/babynames.txt')
-        f = open(fn, 'r')
-        self.names = set(map(lambda s: s.strip(), f.readlines()))
-        f.close()
+    def load_list(self, data_filename):
+        """Loads a ../data/<data_filename> text file into a set."""
+        fn = os.path.join(os.path.dirname(__file__), '../data', data_filename)
+        fh = open(fn, 'r')
+        s = set(map(lambda str: str.strip().lower(), fh.readlines()))
+        fh.close()
 
-
-    def initialize_bailing(self):
-        """Creates a list of functions to evaluate on each word."""
-        self.bailing_conditions = [
-            # all lowercase
-            lambda w: w[0].islower(),
-
-            # abbreviations
-            lambda w: w.count('.') > 0 or len(w) < 4 or w[-1].isupper(),
-
-            # it's a weekday
-            lambda w: w in self.weekdays,
-        ]
+        return s
 
     """
     Words is a list of the words in the entire corpus, previousLabel is the label
