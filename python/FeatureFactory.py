@@ -1,6 +1,7 @@
 import json, sys
 import base64
 from Datum import Datum
+import re
 import os
 
 class FeatureFactory:
@@ -34,15 +35,12 @@ class FeatureFactory:
 
     def computeFeatures(self, words, previousLabel, position):
         features = []
-        currentWord = words[position]
-        nextWord = None
-        if position+1 < len(words):
-            nextWord = words[position+1]
+        current_word = words[position]
 
         """ Baseline Features """
-        features.append("word=" + currentWord)
+        features.append("word=" + current_word)
         features.append("prevLabel=" + previousLabel)
-        features.append("word=" + currentWord + ", prevLabel=" + previousLabel)
+        features.append("word=" + current_word + ", prevLabel=" + previousLabel)
 	"""
         Warning: If you encounter "line search failure" error when
         running the program, considering putting the baseline features
@@ -50,15 +48,46 @@ class FeatureFactory:
         added enough features, take out the features that you don't need.
 	"""
 
+        # leading capital
+        if current_word[0].isupper():
+            # Irish names
+            if re.match(r"(O\'|Mc)[A-Z]{1}[a-z]+", current_word):
+                features.append('name=last-irish')
 
-        for c in self.bailing_conditions:
-            if c(currentWord):
-                return features
+            if current_word.isupper():
+                # Maybe it's an abbreviation, like J. Doe (there are 364 of
+                # these in the datasets)
+                if len(current_word) == 2 and current_word[-1] == '.':
+                    features.append('name=first-initial')
 
-        if currentWord in self.names:
-            features.append('firstname=yes')
+                # Sometimes, we just shout names (163 of them)
+                features.append('case=caps')
+            else:
+                # It's not in all caps
+                features.append('case=title')
 
-        features.append('case=Title')
+                # Are we looking at a lastname?
+                if previousLabel == 'PERSON':
+                    features.append('name=last')
+
+        # Is it a name we know?
+        if current_word.lower() in self.names:
+            features.append('name=known')
+
+        #
+        # Looking to the past for answers...
+        #
+        if position > 0:
+            prev_word = words[position - 1].lower()
+
+            # If the previous word was an honorific abbreviation
+            if prev_word in self.honorifics:
+                features.append('prev=honorific-abbr')
+
+            # If the previous word was a full honorific
+            if current_word[0].isupper():
+                if prev_word in self.honorifics:
+                    features.append('prev=honorific-full')
 
         return features
 
