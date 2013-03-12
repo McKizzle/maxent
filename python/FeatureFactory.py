@@ -10,13 +10,35 @@ class FeatureFactory:
     features, you may not need to intialize anything.
     """
     def __init__(self):
-        self.weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-        self.blacklist = ['A', 'The', 'North', 'South', 'West', 'East', 'Who', 'What', 'When', 'Where', 'Why', 'They']
+        self.initialize_weekdays()
+        self.initialize_babynames()
+        self.initialize_bailing()
+
+    def initialize_weekdays(self):
+        """Sets the weekday blacklist."""
+        self.weekdays = set(['Sunday', 'Monday', 'Tuesday', 'Wednesday',
+                             'Thursday', 'Friday', 'Saturday'])
+
+    def initialize_babynames(self):
+        """Reads the giant list of babynames into a set"""
         fn = os.path.join(os.path.dirname(__file__), '../data/babynames.txt')
         f = open(fn, 'r')
         self.names = set(map(lambda s: s.strip(), f.readlines()))
         f.close()
 
+
+    def initialize_bailing(self):
+        """Creates a list of functions to evaluate on each word."""
+        self.bailing_conditions = [
+            # all lowercase
+            lambda w: w[0].islower(),
+
+            # abbreviations
+            lambda w: w.count('.') > 0 or len(w) < 4 or w[-1].isupper(),
+
+            # it's a weekday
+            lambda w: w in self.weekdays,
+        ]
 
     """
     Words is a list of the words in the entire corpus, previousLabel is the label
@@ -43,27 +65,10 @@ class FeatureFactory:
         added enough features, take out the features that you don't need.
 	"""
 
-        # bail if the word isn't capitalized
-        if not currentWord[0].isupper():
-            return features
 
-        #### TODO: Convert this to a list of lambdas
-
-        # abbreviations
-        if currentWord.count('.') > 0 or len(currentWord) < 4:
-            return features
-
-        if currentWord in self.weekdays:
-            return features
-
-        if currentWord in self.blacklist:
-            return features
-
-        if currentWord[-1].isupper():
-            return features
-
-        if currentWord.split('-').pop().islower():
-            return features
+        for c in self.bailing_conditions:
+            if c(currentWord):
+                return features
 
         if currentWord in self.names:
             features.append('firstname=yes')
